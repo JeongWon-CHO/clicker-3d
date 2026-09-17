@@ -1,7 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
-import { Box3, Vector3 } from "three";
+import {
+  Box3,
+  Mesh,
+  MeshBasicMaterial,
+  MeshStandardMaterial,
+  SRGBColorSpace,
+  Vector3,
+} from "three";
 import modelUrl from "../../keycap.glb?url";
 import {
   useKeycapInteraction,
@@ -25,6 +32,59 @@ export function KeycapModel({
     const center = new Box3().setFromObject(model).getCenter(new Vector3());
     return { model, top, origin: top.position.y, center };
   }, [scene]);
+  useEffect(() => {
+    const restore: (() => void)[] = [];
+    // Work on the instance's material slots, never the cached GLTF materials.
+    data.top.traverse((object) => {
+      if (!(object instanceof Mesh)) return;
+      const original = object.material;
+      const materials = Array.isArray(original) ? original : [original];
+      const replacements = materials.map((material) => {
+        if (
+          material.name !== "Keycap_Face_Mat" ||
+          !(material instanceof MeshStandardMaterial) ||
+          !material.map
+        )
+          return material;
+        // GLTFLoader already marks base-color maps as sRGB. Preserve its UV
+        // channel, transform and flipY; clone only if a correction is necessary.
+        const map =
+          material.map.colorSpace === SRGBColorSpace
+            ? material.map
+            : material.map.clone();
+        if (map !== material.map) {
+          map.colorSpace = SRGBColorSpace;
+          map.needsUpdate = true;
+        }
+        const face = new MeshBasicMaterial({
+          name: material.name,
+          map,
+          color: 0xffffff,
+          toneMapped: false,
+          side: material.side,
+          transparent: material.transparent,
+          opacity: material.opacity,
+          alphaTest: material.alphaTest,
+          depthWrite: material.depthWrite,
+        });
+        restore.push(() => {
+          face.dispose();
+          if (map !== material.map) map.dispose();
+        });
+        return face;
+      });
+      object.material = Array.isArray(original)
+        ? replacements
+        : replacements[0];
+      restore.push(() => {
+        object.material = original;
+      });
+    });
+    invalidate();
+    return () => {
+      restore.forEach((cleanup) => cleanup());
+    };
+  }, [data, invalidate]);
   const motion = useRef({ depth: 0, target: 0, downAt: 0, releaseAt: 0 });
   const press = useCallback(
     (action: PressAction) => {
