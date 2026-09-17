@@ -1,4 +1,10 @@
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+} from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
 import {
@@ -37,11 +43,18 @@ export function KeycapModel({
     if (!top || !model.getObjectByName("Keycap_Base"))
       throw new Error("키캡 모델 구조를 확인할 수 없습니다.");
     let faceMap: Texture | undefined;
-    top.traverse(object => {
+    top.traverse((object) => {
       if (!(object instanceof Mesh)) return;
-      const materials = Array.isArray(object.material) ? object.material : [object.material];
+      const materials = Array.isArray(object.material)
+        ? object.material
+        : [object.material];
       for (const material of materials) {
-        if (material.name === "Keycap_Face_Mat" && material instanceof MeshStandardMaterial && material.map) faceMap = material.map;
+        if (
+          material.name === "Keycap_Face_Mat" &&
+          material instanceof MeshStandardMaterial &&
+          material.map
+        )
+          faceMap = material.map;
       }
     });
     if (!faceMap) throw new Error("얼굴 텍스처를 찾을 수 없습니다.");
@@ -108,7 +121,9 @@ export function KeycapModel({
   useLayoutEffect(() => {
     const map = textures[faceVariant];
     if (!map) return; // Keep the current face until the requested texture is ready.
-    faceMaterials.current.forEach(material => { material.map = map; });
+    faceMaterials.current.forEach((material) => {
+      material.map = map;
+    });
     invalidate();
   }, [textures, faceVariant, invalidate, data]);
   const motion = useRef({ depth: 0, target: 0, downAt: 0, releaseAt: 0 });

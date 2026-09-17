@@ -2,7 +2,11 @@ import { useCallback, useRef, useState } from "react";
 import { KeycapScene } from "./components/KeycapScene";
 import { ClickFeedback, type Feedback } from "./components/ClickFeedback";
 import { usePersistentCount } from "./hooks/usePersistentCount";
-import { faceVariants, initialFaceStatuses, type FaceVariant } from "./faceVariants";
+import {
+  faceVariants,
+  initialFaceStatuses,
+  type FaceVariant,
+} from "./faceVariants";
 
 export default function App() {
   const { count, increment, unavailable } = usePersistentCount();
@@ -55,7 +59,12 @@ export default function App() {
       >
         <div className="stage-halo" />
         <div className="stage-shadow" />
-        <KeycapScene onClick={onClick} onReady={onReady} faceVariant={faceVariant} onFaceStatus={setFaceStatuses} />
+        <KeycapScene
+          onClick={onClick}
+          onReady={onReady}
+          faceVariant={faceVariant}
+          onFaceStatus={setFaceStatuses}
+        />
         {!ready && (
           <div className="loading">
             키캡을 꺼내는 중<span>…</span>
@@ -66,14 +75,29 @@ export default function App() {
         <span /> KEYCAP | Park Jongkeun
       </div>
       <div className="face-variants" role="group" aria-label="얼굴 표정">
-        {faceVariants.map(variant => (
-          <button key={variant.id} type="button"
+        {faceVariants.map((variant) => (
+          <button
+            key={variant.id}
+            type="button"
             aria-pressed={faceVariant === variant.id}
             disabled={faceStatuses[variant.id] !== "ready"}
-            title={faceStatuses[variant.id] === "unavailable" ? "이미지 준비 중" : faceStatuses[variant.id] === "error" ? "이미지를 불러오지 못했어요" : undefined}
-            onClick={() => setFaceVariant(variant.id)}>
+            title={
+              faceStatuses[variant.id] === "unavailable"
+                ? "이미지 준비 중"
+                : faceStatuses[variant.id] === "error"
+                  ? "이미지를 불러오지 못했어요"
+                  : undefined
+            }
+            onClick={() => setFaceVariant(variant.id)}
+          >
             {variant.label}
-            {faceStatuses[variant.id] === "loading" ? " · 로딩 중" : faceStatuses[variant.id] === "unavailable" ? " · 준비 중" : faceStatuses[variant.id] === "error" ? " · 로딩 실패" : ""}
+            {faceStatuses[variant.id] === "loading"
+              ? " · 로딩 중"
+              : faceStatuses[variant.id] === "unavailable"
+                ? " · 준비 중"
+                : faceStatuses[variant.id] === "error"
+                  ? " · 로딩 실패"
+                  : ""}
           </button>
         ))}
       </div>

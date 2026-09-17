@@ -94,7 +94,12 @@ export function KeycapScene({
               color="#ffe4c4"
             />
           </Environment>
-          <KeycapModel onClick={onClick} onReady={onReady} faceVariant={faceVariant} onFaceStatus={onFaceStatus} />
+          <KeycapModel
+            onClick={onClick}
+            onReady={onReady}
+            faceVariant={faceVariant}
+            onFaceStatus={onFaceStatus}
+          />
         </Suspense>
         <RotationControls />
       </Canvas>
