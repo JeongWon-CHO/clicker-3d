@@ -13,6 +13,21 @@ export const faceVariants = [
 }[];
 
 export type FaceVariant = (typeof faceVariants)[number]["id"];
+export const autoFaceStages: readonly {
+  minCount: number;
+  face: FaceVariant;
+}[] = [
+  { minCount: 0, face: "default" },
+  { minCount: 100, face: "angry" },
+  { minCount: 400, face: "crying" },
+];
+
+export function getAutoFace(count: number): FaceVariant {
+  return (
+    [...autoFaceStages].reverse().find((stage) => count >= stage.minCount)
+      ?.face ?? "default"
+  );
+}
 export type FaceStatus = "loading" | "ready" | "unavailable" | "error";
 export type FaceStatuses = Record<FaceVariant, FaceStatus>;
 export const initialFaceStatuses = Object.fromEntries(

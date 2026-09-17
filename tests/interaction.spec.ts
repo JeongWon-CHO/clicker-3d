@@ -68,6 +68,8 @@ test("face variants swap without requests or remounting and preserve clicking", 
   page,
 }) => {
   const center = await ready(page);
+  await page.getByRole("combobox", { name: "표정 모드" }).click();
+  await page.getByRole("option", { name: /직접 선택/ }).click();
   const normal = page.getByRole("button", { name: "기본 종근이", exact: true });
   const crying = page.getByRole("button", {
     name: "울고 있는 종근이",

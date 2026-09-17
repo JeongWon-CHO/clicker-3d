@@ -1,17 +1,21 @@
 import { useCallback, useRef, useState } from "react";
 import { KeycapScene } from "./components/KeycapScene";
+import { ModeSelect } from "./components/ModeSelect";
 import { ClickFeedback, type Feedback } from "./components/ClickFeedback";
 import { usePersistentCount } from "./hooks/usePersistentCount";
 import {
   faceVariants,
+  getAutoFace,
   initialFaceStatuses,
   type FaceVariant,
 } from "./faceVariants";
 
 export default function App() {
-  const { count, increment, unavailable } = usePersistentCount();
+  const { count, increment, reset } = usePersistentCount();
   const [ready, setReady] = useState(false);
-  const [faceVariant, setFaceVariant] = useState<FaceVariant>("default");
+  const [mode, setMode] = useState<"auto" | "manual">("auto");
+  const [manualFace, setManualFace] = useState<FaceVariant>("default");
+  const faceVariant = mode === "auto" ? getAutoFace(count) : manualFace;
   const [faceStatuses, setFaceStatuses] = useState(initialFaceStatuses);
   const [feedback, setFeedback] = useState<Feedback[]>([]);
   const sequence = useRef(0);
@@ -74,38 +78,69 @@ export default function App() {
       <div className="object-label">
         <span /> KEYCAP | Park Jongkeun
       </div>
-      <div className="face-variants" role="group" aria-label="얼굴 표정">
-        {faceVariants.map((variant) => (
-          <button
-            key={variant.id}
-            type="button"
-            aria-pressed={faceVariant === variant.id}
-            disabled={faceStatuses[variant.id] !== "ready"}
-            title={
-              faceStatuses[variant.id] === "unavailable"
-                ? "이미지 준비 중"
-                : faceStatuses[variant.id] === "error"
-                  ? "이미지를 불러오지 못했어요"
-                  : undefined
-            }
-            onClick={() => setFaceVariant(variant.id)}
+      <section
+        className="expression-controls"
+        aria-label="표정 설정"
+        data-face={faceVariant}
+      >
+        <div className="mode-summary">
+          <span className="mode-label">표정</span>
+          <ModeSelect value={mode} onChange={setMode} />
+        </div>
+        {mode === "manual" && (
+          <div
+            className="face-variants face-options"
+            role="group"
+            aria-label="얼굴 표정"
           >
-            {variant.label}
-            {faceStatuses[variant.id] === "loading"
-              ? " · 로딩 중"
-              : faceStatuses[variant.id] === "unavailable"
-                ? " · 준비 중"
-                : faceStatuses[variant.id] === "error"
-                  ? " · 로딩 실패"
-                  : ""}
-          </button>
-        ))}
-      </div>
+            {faceVariants.map((variant) => (
+              <button
+                key={variant.id}
+                aria-label={variant.label}
+                type="button"
+                aria-pressed={faceVariant === variant.id}
+                disabled={faceStatuses[variant.id] !== "ready"}
+                title={
+                  faceStatuses[variant.id] === "unavailable"
+                    ? "이미지 준비 중"
+                    : faceStatuses[variant.id] === "error"
+                      ? "이미지를 불러오지 못했어요"
+                      : undefined
+                }
+                onClick={() => setManualFace(variant.id)}
+              >
+                {(
+                  { default: "기본", angry: "화남", crying: "울음" } as Partial<
+                    Record<FaceVariant, string>
+                  >
+                )[variant.id] ?? variant.label}
+                {faceStatuses[variant.id] === "loading"
+                  ? " · 로딩 중"
+                  : faceStatuses[variant.id] === "unavailable"
+                    ? " · 준비 중"
+                    : faceStatuses[variant.id] === "error"
+                      ? " · 로딩 실패"
+                      : ""}
+              </button>
+            ))}
+          </div>
+        )}
+      </section>
       <section className="count-panel" aria-label="누적 클릭 수">
         <span className="count-label">TOTAL CLICKS</span>
         <output ref={counter} data-testid="count">
           {count.toLocaleString("en-US")}
         </output>
+        <button
+          className="text-action reset-count"
+          type="button"
+          onClick={() => {
+            reset();
+            setFeedback([]);
+          }}
+        >
+          클릭 수 초기화
+        </button>
       </section>
       <footer>
         <div className="gesture-hints">

@@ -44,6 +44,14 @@ export function usePersistentCount() {
     if (timer.current === null) timer.current = setTimeout(flush, 250);
   }, [flush]);
 
+  const reset = useCallback(() => {
+    latest.current = 0;
+    setCount(0);
+    dirty.current = true;
+    // Cancel any pending click write and persist the explicit reset immediately.
+    flush();
+  }, [flush]);
+
   useEffect(() => {
     const onVisibility = () => {
       if (document.visibilityState === "hidden") flush();
@@ -57,5 +65,5 @@ export function usePersistentCount() {
     };
   }, [flush]);
 
-  return { count, increment, unavailable };
+  return { count, increment, reset, unavailable };
 }
