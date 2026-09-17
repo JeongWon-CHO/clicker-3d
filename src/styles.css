@@ -32,6 +32,8 @@ a {
   flex-direction: column;
   position: relative;
   overflow: hidden;
+  -webkit-user-select: none;
+  user-select: none;
   background: radial-gradient(ellipse at 50% 40%, #20222655, transparent 52%);
 }
 .header {
@@ -124,10 +126,9 @@ h1 {
   pointer-events: none;
 }
 .object-label {
-  position: absolute;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
+  align-self: center;
+  flex-shrink: 0;
+  margin: clamp(24px, 3dvh, 36px) 20px 0;
   font-size: 9px;
   letter-spacing: 2px;
   color: #656a61;
@@ -269,9 +270,6 @@ footer {
 }
 .app {
   background: #101113;
-}
-.object-label {
-  z-index: 2;
 }
 @media (min-height: 900px) {
   .intro {

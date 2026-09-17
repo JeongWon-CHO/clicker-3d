@@ -34,7 +34,7 @@ export default function App() {
   );
 
   return (
-    <main className="app">
+    <main className="app" onDragStart={(event) => event.preventDefault()}>
       <header className="header">
         <a className="wordmark" href="./" aria-label="Clicker 홈">
           <span className="brand-icon" />
@@ -58,10 +58,10 @@ export default function App() {
             키캡을 꺼내는 중<span>…</span>
           </div>
         )}
-        <div className="object-label">
-          <span /> KEYCAP | Park Jongkeun
-        </div>
       </section>
+      <div className="object-label">
+        <span /> KEYCAP | Park Jongkeun
+      </div>
       <section className="count-panel" aria-label="누적 클릭 수">
         <span className="count-label">TOTAL CLICKS</span>
         <output ref={counter} data-testid="count">
