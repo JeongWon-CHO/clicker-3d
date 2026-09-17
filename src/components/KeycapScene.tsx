@@ -4,6 +4,7 @@ import { Environment, Lightformer } from "@react-three/drei";
 import { PerspectiveCamera } from "three";
 import { KeycapModel } from "./KeycapModel";
 import { RotationControls } from "./RotationControls";
+import type { FaceStatuses, FaceVariant } from "../faceVariants";
 
 function CameraFit() {
   const { camera, size, invalidate } = useThree();
@@ -44,9 +45,13 @@ class SceneBoundary extends Component<
 export function KeycapScene({
   onClick,
   onReady,
+  faceVariant,
+  onFaceStatus,
 }: {
   onClick: (x: number, y: number) => void;
   onReady: () => void;
+  faceVariant: FaceVariant;
+  onFaceStatus: (status: FaceStatuses) => void;
 }) {
   return (
     <SceneBoundary>
@@ -89,7 +94,7 @@ export function KeycapScene({
               color="#ffe4c4"
             />
           </Environment>
-          <KeycapModel onClick={onClick} onReady={onReady} />
+          <KeycapModel onClick={onClick} onReady={onReady} faceVariant={faceVariant} onFaceStatus={onFaceStatus} />
         </Suspense>
         <RotationControls />
       </Canvas>

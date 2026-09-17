@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import { useGLTF } from "@react-three/drei";
 import {
@@ -7,9 +7,12 @@ import {
   MeshBasicMaterial,
   MeshStandardMaterial,
   SRGBColorSpace,
+  Texture,
   Vector3,
 } from "three";
 import modelUrl from "../../keycap.glb?url";
+import { useFaceTextures } from "../hooks/useFaceTextures";
+import type { FaceStatuses, FaceVariant } from "../faceVariants";
 import {
   useKeycapInteraction,
   type PressAction,
@@ -18,9 +21,13 @@ import {
 export function KeycapModel({
   onClick,
   onReady,
+  faceVariant,
+  onFaceStatus,
 }: {
   onClick: (x: number, y: number) => void;
   onReady: () => void;
+  faceVariant: FaceVariant;
+  onFaceStatus: (status: FaceStatuses) => void;
 }) {
   const { scene } = useGLTF(modelUrl);
   const { invalidate, gl } = useThree();
@@ -29,10 +36,21 @@ export function KeycapModel({
     const top = model.getObjectByName("Keycap_Top");
     if (!top || !model.getObjectByName("Keycap_Base"))
       throw new Error("키캡 모델 구조를 확인할 수 없습니다.");
+    let faceMap: Texture | undefined;
+    top.traverse(object => {
+      if (!(object instanceof Mesh)) return;
+      const materials = Array.isArray(object.material) ? object.material : [object.material];
+      for (const material of materials) {
+        if (material.name === "Keycap_Face_Mat" && material instanceof MeshStandardMaterial && material.map) faceMap = material.map;
+      }
+    });
+    if (!faceMap) throw new Error("얼굴 텍스처를 찾을 수 없습니다.");
     const center = new Box3().setFromObject(model).getCenter(new Vector3());
-    return { model, top, origin: top.position.y, center };
+    return { model, top, origin: top.position.y, center, faceMap };
   }, [scene]);
-  useEffect(() => {
+  const textures = useFaceTextures(data.faceMap, onFaceStatus);
+  const faceMaterials = useRef<MeshBasicMaterial[]>([]);
+  useLayoutEffect(() => {
     const restore: (() => void)[] = [];
     // Work on the instance's material slots, never the cached GLTF materials.
     data.top.traverse((object) => {
@@ -67,6 +85,7 @@ export function KeycapModel({
           alphaTest: material.alphaTest,
           depthWrite: material.depthWrite,
         });
+        faceMaterials.current.push(face);
         restore.push(() => {
           face.dispose();
           if (map !== material.map) map.dispose();
@@ -83,8 +102,15 @@ export function KeycapModel({
     invalidate();
     return () => {
       restore.forEach((cleanup) => cleanup());
+      faceMaterials.current = [];
     };
   }, [data, invalidate]);
+  useLayoutEffect(() => {
+    const map = textures[faceVariant];
+    if (!map) return; // Keep the current face until the requested texture is ready.
+    faceMaterials.current.forEach(material => { material.map = map; });
+    invalidate();
+  }, [textures, faceVariant, invalidate, data]);
   const motion = useRef({ depth: 0, target: 0, downAt: 0, releaseAt: 0 });
   const press = useCallback(
     (action: PressAction) => {

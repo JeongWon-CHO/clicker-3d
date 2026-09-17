@@ -4,9 +4,13 @@ async function ready(page: Page) {
   await page.goto('/');
   await expect(page.locator('.stage')).toHaveAttribute('data-ready', 'true');
   await expect(page.locator('canvas')).toHaveAttribute('data-press-depth', '0.000');
+  // Texture loading labels and fonts may resize the stage before ResizeObserver catches up.
+  await expect.poll(async () => {
+    const box = (await page.locator('canvas').boundingBox())!;
+    const stage = (await page.locator('.stage').boundingBox())!;
+    return Math.abs(box.height - stage.height);
+  }).toBeLessThanOrEqual(1);
   const box = (await page.locator('canvas').boundingBox())!;
-  const stage = (await page.locator('.stage').boundingBox())!;
-  expect(box.height).toBeGreaterThanOrEqual(stage.height - 1);
   return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
 }
 
@@ -47,6 +51,33 @@ test('GLB loads; pointerdown presses, pointerup counts; drag cancels and rotates
   await page.reload();
   await expect(count).toHaveText('1');
   expect(errors).toEqual([]);
+});
+
+test('face variants swap without requests or remounting and preserve clicking', async ({ page }) => {
+  const center = await ready(page);
+  const normal = page.getByRole('button', { name: '기본 종근이', exact: true });
+  const crying = page.getByRole('button', { name: '울고 있는 종근이', exact: true });
+  await expect(normal).toBeEnabled();
+  await expect(crying).toBeEnabled();
+  const canvas = page.locator('canvas');
+  const original = await canvas.screenshot();
+  const requests: string[] = [];
+  page.on('request', request => requests.push(request.url()));
+  // Already uploaded textures must work even with subsequent network access blocked.
+  await page.context().setOffline(true);
+  await crying.click();
+  await expect(crying).toHaveAttribute('aria-pressed', 'true');
+  const changed = await canvas.screenshot();
+  expect(changed.equals(original)).toBe(false);
+  await expect(page.getByTestId('count')).toHaveText('0');
+  await page.screenshot({ path: 'test-results/crying-face.png' });
+  await normal.click();
+  expect((await canvas.screenshot()).equals(original)).toBe(true);
+  await crying.click();
+  await page.mouse.click(center.x, center.y);
+  await expect(page.getByTestId('count')).toHaveText('1');
+  await expect(canvas).toHaveAttribute('data-press-depth', '0.000');
+  expect(requests.filter(url => /\.(png|jpg|glb)(\?|$)/.test(url))).toEqual([]);
 });
 
 test('rapid clicks are counted exactly and writes are throttled; pagehide flushes', async ({ page }) => {
