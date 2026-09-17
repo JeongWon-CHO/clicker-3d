@@ -1,0 +1,86 @@
+import { useCallback, useRef, useState } from "react";
+import { KeycapScene } from "./components/KeycapScene";
+import { ClickFeedback, type Feedback } from "./components/ClickFeedback";
+import { usePersistentCount } from "./hooks/usePersistentCount";
+
+export default function App() {
+  const { count, increment, unavailable } = usePersistentCount();
+  const [ready, setReady] = useState(false);
+  const [feedback, setFeedback] = useState<Feedback[]>([]);
+  const sequence = useRef(0);
+  const counter = useRef<HTMLOutputElement>(null);
+  const onReady = useCallback(() => setReady(true), []);
+  const onClick = useCallback(
+    (x: number, y: number) => {
+      increment();
+      const id = ++sequence.current;
+      setFeedback((items) => [...items.slice(-11), { id, x, y }]);
+      if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        counter.current
+          ?.getAnimations()
+          .forEach((animation) => animation.cancel());
+        counter.current?.animate(
+          [{ transform: "scale(1.055)" }, { transform: "scale(1)" }],
+          { duration: 180, easing: "ease-out" },
+        );
+      }
+    },
+    [increment],
+  );
+  const onDone = useCallback(
+    (id: number) =>
+      setFeedback((items) => items.filter((item) => item.id !== id)),
+    [],
+  );
+
+  return (
+    <main className="app">
+      <header className="header">
+        <a className="wordmark" href="./" aria-label="Clicker 홈">
+          <span className="brand-icon" />
+          clicker<span className="brand-dot">.</span>
+        </a>
+      </header>
+      <section className="intro">
+        <h1>미쳐라</h1>
+        <p>단 한 번도 열정이 식지 않은 것처럼...</p>
+      </section>
+      <section
+        className="stage"
+        aria-label="박종근을 누른다면?"
+        data-ready={ready}
+      >
+        <div className="stage-halo" />
+        <div className="stage-shadow" />
+        <KeycapScene onClick={onClick} onReady={onReady} />
+        {!ready && (
+          <div className="loading">
+            키캡을 꺼내는 중<span>…</span>
+          </div>
+        )}
+        <div className="object-label">
+          <span /> KEYCAP | Park Jongkeun
+        </div>
+      </section>
+      <section className="count-panel" aria-label="누적 클릭 수">
+        <span className="count-label">TOTAL CLICKS</span>
+        <output ref={counter} data-testid="count">
+          {count.toLocaleString("en-US")}
+        </output>
+      </section>
+      <footer>
+        <div className="gesture-hints">
+          <span>
+            <i className="tap-icon" />
+            클릭해서 누르기
+          </span>
+          <span className="hint-divider" />
+          <span>
+            <i className="rotate-icon">↔</i>드래그해서 돌리기
+          </span>
+        </div>
+      </footer>
+      <ClickFeedback items={feedback} onDone={onDone} />
+    </main>
+  );
+}
