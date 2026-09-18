@@ -29,7 +29,7 @@ export const faceVariants = [
 }[];
 
 export type FaceVariant = (typeof faceVariants)[number]["id"];
-export type FaceMode = "auto" | "manual";
+export type FaceSelection = "auto" | FaceVariant;
 export const autoFaceStages: readonly {
   minCount: number;
   face: FaceVariant;

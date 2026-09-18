@@ -1,13 +1,18 @@
 .mode-select {
   position: relative;
 }
+.mode-option[aria-disabled="true"] {
+  opacity: 0.45;
+  cursor: default;
+}
 
 .mode-trigger {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 22px;
-  min-width: 112px;
+  min-width: 170px;
+  white-space: nowrap;
   min-height: 44px;
   padding: 12px 15px;
   border: 1px solid #363c32;

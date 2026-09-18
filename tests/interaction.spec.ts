@@ -69,28 +69,29 @@ test("face variants swap without requests or remounting and preserve clicking", 
 }) => {
   const center = await ready(page);
   await page.getByRole("combobox", { name: "표정 모드" }).click();
-  await page.getByRole("option", { name: /직접 선택/ }).click();
-  const normal = page.getByRole("button", { name: "기본 종근이", exact: true });
-  const crying = page.getByRole("button", {
-    name: "울고 있는 종근이",
-    exact: true,
-  });
-  await expect(normal).toBeEnabled();
-  await expect(crying).toBeEnabled();
+  const normal = page.getByRole("option", { name: /직접 선택 - 기본/ });
+  const crying = page.getByRole("option", { name: /직접 선택 - 울음/ });
+  const trigger = page.getByRole("combobox", { name: "표정 모드" });
+  await expect(normal).toHaveAttribute("aria-disabled", "false");
+  await expect(crying).toHaveAttribute("aria-disabled", "false");
+  await normal.click();
   const canvas = page.locator("canvas");
   const original = await canvas.screenshot();
   const requests: string[] = [];
   page.on("request", (request) => requests.push(request.url()));
   // Already uploaded textures must work even with subsequent network access blocked.
   await page.context().setOffline(true);
+  await trigger.click();
   await crying.click();
-  await expect(crying).toHaveAttribute("aria-pressed", "true");
+  await expect(trigger).toHaveText("직접 선택 - 울음");
   const changed = await canvas.screenshot();
   expect(changed.equals(original)).toBe(false);
   await expect(page.getByTestId("count")).toHaveText("0");
   await page.screenshot({ path: "test-results/crying-face.png" });
+  await trigger.click();
   await normal.click();
   expect((await canvas.screenshot()).equals(original)).toBe(true);
+  await trigger.click();
   await crying.click();
   await page.mouse.click(center.x, center.y);
   await expect(page.getByTestId("count")).toHaveText("1");

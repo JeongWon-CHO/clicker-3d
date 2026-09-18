@@ -13,18 +13,16 @@ import { useClickFeedback } from "./hooks/useClickFeedback";
 import {
   getAutoFace,
   initialFaceStatuses,
-  type FaceMode,
-  type FaceVariant,
+  type FaceSelection,
 } from "./faceVariants";
 
 export default function App() {
   const { count, increment, reset } = usePersistentCount();
   const playClickSound = useKeyClickSound();
   const { items, show, remove, clear } = useClickFeedback();
-  const [mode, setMode] = useState<FaceMode>("auto");
-  const [manualFace, setManualFace] = useState<FaceVariant>("default");
+  const [selection, setSelection] = useState<FaceSelection>("auto");
   const [faceStatuses, setFaceStatuses] = useState(initialFaceStatuses);
-  const faceVariant = mode === "auto" ? getAutoFace(count) : manualFace;
+  const faceVariant = selection === "auto" ? getAutoFace(count) : selection;
 
   const onClick = useCallback(
     (x: number, y: number) => {
@@ -50,11 +48,10 @@ export default function App() {
         onClick={onClick}
       />
       <ExpressionControls
-        mode={mode}
+        selection={selection}
         faceVariant={faceVariant}
         statuses={faceStatuses}
-        onModeChange={setMode}
-        onFaceChange={setManualFace}
+        onSelectionChange={setSelection}
       />
       <ClickCounter count={count} onReset={onReset} />
       <InteractionGuide />

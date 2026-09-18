@@ -20,8 +20,8 @@ for (const viewport of [
     const before = (await canvas.boundingBox())!;
     const mode = page.getByRole("combobox", { name: "표정 모드" });
     await mode.tap();
-    await page.getByRole("option", { name: /직접 선택/ }).tap();
-    await expect(page.getByRole("group", { name: "얼굴 표정" })).toBeVisible();
+    await page.getByRole("option", { name: /직접 선택 - 기본/ }).tap();
+    await expect(page.getByRole("group", { name: "얼굴 표정" })).toHaveCount(0);
     const manual = (await canvas.boundingBox())!;
     expect(manual.width).toBeCloseTo(before.width, 1);
     expect(manual.height).toBeCloseTo(before.height, 1);

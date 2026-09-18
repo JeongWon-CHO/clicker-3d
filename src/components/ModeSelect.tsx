@@ -1,24 +1,35 @@
 import "./ModeSelect.css";
 import { useEffect, useId, useRef, useState } from "react";
-import type { FaceMode } from "../faceVariants";
+import {
+  faceVariants,
+  type FaceSelection,
+  type FaceStatuses,
+} from "../faceVariants";
 
-const options = [
+const options: { value: FaceSelection; label: string }[] = [
   { value: "auto", label: "Auto" },
-  { value: "manual", label: "직접 선택" },
-] as const;
+  ...faceVariants.map((face) => ({
+    value: face.id,
+    label: `직접 선택 - ${face.shortLabel}`,
+  })),
+];
 
 export function ModeSelect({
   value,
   onChange,
+  statuses,
 }: {
-  value: FaceMode;
-  onChange: (value: FaceMode) => void;
+  value: FaceSelection;
+  onChange: (value: FaceSelection) => void;
+  statuses: FaceStatuses;
 }) {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
   const root = useRef<HTMLDivElement>(null);
   const id = useId();
   const selected = options.findIndex((option) => option.value === value);
+  const available = (value: FaceSelection) =>
+    value === "auto" || statuses[value] === "ready";
   const show = () => {
     setActive(selected);
     setOpen(true);
@@ -71,8 +82,10 @@ export function ModeSelect({
             setActive(event.key === "Home" ? 0 : options.length - 1);
           } else if (open && (event.key === "Enter" || event.key === " ")) {
             event.preventDefault();
-            onChange(options[active].value);
-            setOpen(false);
+            if (available(options[active].value)) {
+              onChange(options[active].value);
+              setOpen(false);
+            }
           }
         }}
       >
@@ -106,10 +119,12 @@ export function ModeSelect({
               id={`${id}-${index}`}
               role="option"
               aria-selected={value === option.value}
+              aria-disabled={!available(option.value)}
               className={`mode-option${active === index ? " is-active" : ""}`}
               onPointerMove={() => setActive(index)}
               onPointerDown={(event) => event.preventDefault()}
               onClick={() => {
+                if (!available(option.value)) return;
                 onChange(option.value);
                 setOpen(false);
               }}
