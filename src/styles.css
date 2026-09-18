@@ -83,7 +83,8 @@ h1 {
 }
 .stage {
   position: relative;
-  flex: 1;
+  /* Controls below the canvas must never consume its height. */
+  flex: none;
   min-height: 310px;
   height: 43dvh;
   max-height: 560px;
@@ -459,7 +460,8 @@ footer {
   .stage {
     min-height: 300px;
     max-height: 440px;
-    height: 42dvh;
+    /* Browser toolbar expansion/collapse should not resize the keycap. */
+    height: 42svh;
   }
   .count-panel {
     padding: 23px 15px 35px;
