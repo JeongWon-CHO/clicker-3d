@@ -210,7 +210,8 @@ test("mobile viewport supports tapping without horizontal overflow", async ({
     "data-press-depth",
     "0.000",
   );
-  // Adding a second finger cancels a pending click, even without a drag.
+  // Every finger gets an independent click, so fast two-handed tapping does
+  // not silently discard either sound/count update.
   await cdp.send("Input.dispatchTouchEvent", {
     type: "touchStart",
     touchPoints: [{ x, y, id: 1 }],
@@ -226,7 +227,7 @@ test("mobile viewport supports tapping without horizontal overflow", async ({
     type: "touchEnd",
     touchPoints: [],
   });
-  await expect(page.getByTestId("count")).toHaveText("1");
+  await expect(page.getByTestId("count")).toHaveText("3");
   await expect(page.locator("canvas")).toHaveAttribute(
     "data-press-depth",
     "0.000",

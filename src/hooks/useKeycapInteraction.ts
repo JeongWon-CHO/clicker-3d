@@ -14,13 +14,12 @@ export function useKeycapInteraction(
     const canvas = gl.domElement;
     const ray = new Raycaster();
     const point = new Vector2();
-    const active = new Set<number>();
-    let candidate: {
-      id: number;
+    type Candidate = {
       x: number;
       y: number;
       threshold: number;
-    } | null = null;
+    };
+    const candidates = new Map<number, Candidate>();
     const hit = (event: PointerEvent) => {
       const rect = canvas.getBoundingClientRect();
       if (
@@ -39,55 +38,47 @@ export function useKeycapInteraction(
       ray.setFromCamera(point, camera);
       return ray.intersectObject(model, true).length > 0;
     };
-    const cancel = () => {
-      candidate = null;
-      press("cancel");
+    const cancel = (id: number) => {
+      if (!candidates.delete(id)) return;
+      if (candidates.size === 0) press("cancel");
     };
     const down = (event: PointerEvent) => {
       if (event.pointerType === "mouse" && event.button !== 0) return;
-      active.add(event.pointerId);
-      if (active.size !== 1) {
-        cancel();
-        return;
-      }
       if (!hit(event)) return;
-      candidate = {
-        id: event.pointerId,
+      candidates.set(event.pointerId, {
         x: event.clientX,
         y: event.clientY,
         threshold: event.pointerType === "touch" ? 9 : 5,
-      };
+      });
       canvas.setPointerCapture(event.pointerId);
-      press("down");
+      if (candidates.size === 1) press("down");
     };
     const move = (event: PointerEvent) => {
-      if (!candidate || candidate.id !== event.pointerId) return;
+      const candidate = candidates.get(event.pointerId);
+      if (!candidate) return;
       if (
         Math.hypot(event.clientX - candidate.x, event.clientY - candidate.y) >
         candidate.threshold
       )
-        cancel();
+        cancel(event.pointerId);
     };
     const up = (event: PointerEvent) => {
       move(event);
-      const valid =
-        candidate?.id === event.pointerId && active.size === 1 && hit(event);
-      candidate = null;
-      active.delete(event.pointerId);
-      press(valid ? "release" : "cancel");
+      const valid = candidates.has(event.pointerId) && hit(event);
+      if (!candidates.delete(event.pointerId)) return;
+      if (candidates.size === 0) press(valid ? "release" : "cancel");
       if (valid) onClick(event.clientX, event.clientY);
     };
     const pointerCancel = (event: PointerEvent) => {
-      active.delete(event.pointerId);
-      cancel();
+      cancel(event.pointerId);
     };
     const lost = (event: PointerEvent) => {
-      if (candidate?.id === event.pointerId) cancel();
-      active.delete(event.pointerId);
+      cancel(event.pointerId);
     };
     const blur = () => {
-      active.clear();
-      cancel();
+      if (candidates.size === 0) return;
+      candidates.clear();
+      press("cancel");
     };
     // Capture observes input before rotation controls, without blocking their handlers.
     canvas.addEventListener("pointerdown", down, true);

@@ -53,3 +53,48 @@ test("each rapid valid click starts a separate decoded sound; drag stays silent"
   );
   await expect(page.getByTestId("count")).toHaveText("20");
 });
+
+test("simultaneous touches each start their own sound", async ({ browser }) => {
+  const context = await browser.newContext({
+    viewport: { width: 390, height: 844 },
+    deviceScaleFactor: 2,
+    isMobile: true,
+    hasTouch: true,
+  });
+  const page = await context.newPage();
+  await page.addInitScript(() => {
+    const started: AudioBufferSourceNode[] = [];
+    (window as any).clickSounds = started;
+    const start = AudioBufferSourceNode.prototype.start;
+    AudioBufferSourceNode.prototype.start = function (...args) {
+      started.push(this);
+      return start.apply(this, args);
+    };
+  });
+  await page.goto("/");
+  await expect(page.locator(".stage")).toHaveAttribute("data-ready", "true");
+  const box = (await page.locator("canvas").boundingBox())!;
+  const x = box.x + box.width / 2;
+  const y = box.y + box.height / 2;
+  const cdp = await context.newCDPSession(page);
+  await cdp.send("Input.dispatchTouchEvent", {
+    type: "touchStart",
+    touchPoints: [{ x: x - 8, y, id: 1 }],
+  });
+  await cdp.send("Input.dispatchTouchEvent", {
+    type: "touchStart",
+    touchPoints: [
+      { x: x - 8, y, id: 1 },
+      { x: x + 8, y, id: 2 },
+    ],
+  });
+  await cdp.send("Input.dispatchTouchEvent", {
+    type: "touchEnd",
+    touchPoints: [],
+  });
+  await expect(page.getByTestId("count")).toHaveText("2");
+  await expect
+    .poll(() => page.evaluate(() => (window as any).clickSounds.length))
+    .toBe(2);
+  await context.close();
+});
