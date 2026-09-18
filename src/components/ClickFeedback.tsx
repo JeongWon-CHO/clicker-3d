@@ -1,3 +1,4 @@
+import "./ClickFeedback.css";
 export type Feedback = { id: number; x: number; y: number };
 
 export function ClickFeedback({

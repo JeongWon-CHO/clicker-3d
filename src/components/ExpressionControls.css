@@ -1,0 +1,75 @@
+.face-variants {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+}
+
+.expression-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 24px;
+  margin: 0 20px;
+}
+
+.mode-summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mode-label {
+  font-size: 10px;
+  color: #737c6c;
+}
+
+.face-variants.face-options {
+  gap: 0;
+  padding: 4px;
+  border: 1px solid #30362c;
+  border-radius: 12px;
+}
+
+.face-variants.face-options button {
+  border: 0;
+  border-radius: 8px;
+  min-width: 64px;
+}
+
+.face-variants.face-options button[aria-pressed="true"] {
+  background: #d8ecc117;
+}
+
+.face-variants button {
+  font: inherit;
+  font-size: 11px;
+  padding: 9px 14px;
+  border-radius: 18px;
+  border: 1px solid #363c32;
+  color: #929b89;
+  background: transparent;
+  cursor: pointer;
+}
+
+.face-options {
+  margin-top: 0;
+}
+
+.face-variants button[aria-pressed="true"] {
+  color: #d8ecc1;
+  border-color: #768668;
+  background: #d8ecc10b;
+}
+
+.face-variants button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.face-variants button:focus-visible {
+  outline: 2px solid #d8ecc1;
+  outline-offset: 3px;
+}

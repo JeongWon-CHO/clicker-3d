@@ -1,0 +1,14 @@
+.app {
+  min-height: 100dvh;
+  max-width: 1800px;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  -webkit-user-select: none;
+  user-select: none;
+  background: #101113;
+  /* Space between page sections; component CSS owns internal gaps. */
+  gap: 20px;
+}

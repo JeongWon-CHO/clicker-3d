@@ -1,17 +1,18 @@
+import "./ModeSelect.css";
 import { useEffect, useId, useRef, useState } from "react";
+import type { FaceMode } from "../faceVariants";
 
 const options = [
   { value: "auto", label: "Auto" },
   { value: "manual", label: "직접 선택" },
 ] as const;
-type Mode = (typeof options)[number]["value"];
 
 export function ModeSelect({
   value,
   onChange,
 }: {
-  value: Mode;
-  onChange: (value: Mode) => void;
+  value: FaceMode;
+  onChange: (value: FaceMode) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);

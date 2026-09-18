@@ -145,7 +145,9 @@ test("invalid stored count and unavailable storage are handled", async ({
 }) => {
   await page.addInitScript(() => {
     localStorage.setItem("clicker:count:v1", "-123");
+    (window as any).failedSaveAttempts = 0;
     Storage.prototype.setItem = () => {
+      (window as any).failedSaveAttempts++;
       throw new DOMException("Blocked", "QuotaExceededError");
     };
   });
@@ -153,7 +155,12 @@ test("invalid stored count and unavailable storage are handled", async ({
   await expect(page.getByTestId("count")).toHaveText("0");
   await page.mouse.click(center.x, center.y);
   await expect(page.getByTestId("count")).toHaveText("1");
-  await expect(page.locator(".save-note")).toContainText("저장할 수 없어요");
+  await expect
+    .poll(() => page.evaluate(() => (window as any).failedSaveAttempts))
+    .toBeGreaterThan(0);
+  // Saving may fail, but the clicker must remain usable without the removed notice.
+  await page.mouse.click(center.x, center.y);
+  await expect(page.getByTestId("count")).toHaveText("2");
 });
 
 test("mobile viewport supports tapping without horizontal overflow", async ({

@@ -1,0 +1,66 @@
+footer {
+  margin: 0 5.1%;
+  border-top: 1px solid #ffffff0b;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.gesture-hints {
+  display: flex;
+  align-items: center;
+  gap: 21px;
+  font-size: 11px;
+  color: #898e83;
+}
+
+.gesture-hints > span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hint-divider {
+  width: 1px;
+  height: 10px;
+  background: #42463e;
+}
+
+.tap-icon {
+  width: 11px;
+  height: 15px;
+  border: 1px solid #939a8c;
+  border-radius: 5px;
+  position: relative;
+}
+
+.tap-icon:after {
+  content: "";
+  position: absolute;
+  height: 4px;
+  width: 1px;
+  background: #bacaac;
+  left: 4px;
+  top: 2px;
+}
+
+.rotate-icon {
+  font-style: normal;
+  font-size: 20px;
+  line-height: 15px;
+  color: #a8b19d;
+}
+
+@media (max-width: 600px) {
+  footer {
+    margin: 0 7%;
+    justify-content: center;
+    min-height: 78px;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .gesture-hints {
+    font-size: 10px;
+    gap: 17px;
+  }
+}

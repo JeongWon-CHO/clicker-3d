@@ -1,5 +1,30 @@
 # Clicker
 
+## 어디를 수정하면 되나요?
+
+한 페이지 안에서도 화면 영역별로 컴포넌트를 나눕니다. `App.tsx`는 화면 배치와 공유 상태 연결을 담당합니다. 새 페이지나 전역 상태 라이브러리 없이 각 파일의 JSX를 직접 수정할 수 있습니다.
+
+| 바꾸려는 내용 | 파일 |
+| --- | --- |
+| 화면 영역의 순서와 공통 상태 연결 | `src/App.tsx` |
+| 로고·헤더 | `src/components/SiteHeader.tsx` |
+| 제목·설명 문구 | `src/components/Intro.tsx` |
+| 3D 영역·로딩 문구·모델 아래 라벨 | `src/components/KeycapStage.tsx` |
+| 카메라·조명 | `src/components/KeycapScene.tsx` |
+| 모델 재질·눌림 애니메이션 | `src/components/KeycapModel.tsx` |
+| 표정 선택 영역·버튼 배치 | `src/components/ExpressionControls.tsx` |
+| 커스텀 모드 드롭다운 | `src/components/ModeSelect.tsx` |
+| 표정 이미지·이름·Auto 전환 기준 | `src/faceVariants.ts` |
+| 카운터·숫자 애니메이션·초기화 버튼 | `src/components/ClickCounter.tsx` |
+| 하단 조작 안내 | `src/components/InteractionGuide.tsx` |
+| +1 표시 / 생성·제거 처리 | `src/components/ClickFeedback.tsx` / `src/hooks/useClickFeedback.ts` |
+| 클릭 수 저장 / 클릭 소리 | `src/hooks/usePersistentCount.ts` / `src/hooks/useKeyClickSound.ts` |
+| 전체 화면 배치 | `src/App.css` |
+| 각 영역의 색상·여백·모바일 레이아웃 | 해당 컴포넌트 옆의 같은 이름 `.css` 파일 |
+| 공통 폰트·기본 스타일 | `src/styles.css` |
+
+각 컴포넌트가 같은 폴더의 CSS를 직접 import합니다. 예를 들어 제목은 `Intro.tsx`, 제목의 크기와 여백은 `Intro.css`에서 수정합니다. 반응형 규칙과 애니메이션도 해당 CSS에 함께 둡니다. CSS 클래스 이름은 기존대로 유지합니다.
+
 직접 제작한 GLB 키캡을 돌리고 누르는 단일 페이지 웹 경험입니다.
 React + TypeScript + Vite, Three.js + React Three Fiber + Drei로 구성했습니다.
 

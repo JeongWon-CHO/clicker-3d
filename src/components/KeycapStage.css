@@ -1,0 +1,129 @@
+.stage {
+  position: relative;
+  /* Controls below the canvas must never consume its height. */
+  flex: none;
+  min-height: 310px;
+  height: 43dvh;
+  max-height: 560px;
+  isolation: isolate;
+}
+
+.stage
+  > div:not(.stage-halo):not(.stage-shadow):not(.object-label):not(
+    .loading
+  ):not(.scene-message) {
+  z-index: 1;
+}
+
+.stage canvas {
+  touch-action: none;
+  cursor: grab;
+  outline: none;
+}
+
+.stage canvas:active {
+  cursor: grabbing;
+}
+
+.stage-halo {
+  position: absolute;
+  width: 520px;
+  height: 300px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(ellipse, #858f7d0b, transparent 65%);
+  pointer-events: none;
+}
+
+.stage-shadow {
+  position: absolute;
+  width: 210px;
+  height: 22px;
+  left: 50%;
+  bottom: 17%;
+  transform: translateX(-50%);
+  background: #0007;
+  filter: blur(18px);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.object-label {
+  align-self: center;
+  flex-shrink: 0;
+  margin: 0 20px;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: #656a61;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  pointer-events: none;
+}
+
+.object-label span {
+  height: 3px;
+  width: 3px;
+  background: #969e89;
+  border-radius: 50%;
+}
+
+.loading,
+.scene-message {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  color: #a4aaa0;
+  font-size: 13px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.scene-message {
+  background: #101113;
+  flex-direction: column;
+}
+
+.scene-message button {
+  pointer-events: auto;
+  padding: 10px 20px;
+  border: 1px solid #535a4b;
+  background: #232820;
+  color: #d1edab;
+  border-radius: 20px;
+}
+
+.loading span {
+  animation: breathe 1s infinite alternate;
+}
+
+@keyframes breathe {
+  to {
+    opacity: 0.3;
+  }
+}
+
+@media (min-height: 900px) {
+  .stage {
+    min-height: 390px;
+  }
+}
+
+@media (max-width: 600px) {
+  .stage {
+    min-height: 300px;
+    max-height: 440px;
+    /* Browser toolbar expansion/collapse should not resize the keycap. */
+    height: 42svh;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading span {
+    animation: none;
+  }
+}

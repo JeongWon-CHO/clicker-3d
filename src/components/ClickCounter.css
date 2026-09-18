@@ -1,0 +1,57 @@
+.count-panel {
+  padding-inline: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+}
+
+.text-action {
+  font: inherit;
+  font-size: 10px;
+  color: #929b89;
+  background: none;
+  border: 0;
+  padding: 10px 4px;
+  cursor: pointer;
+}
+
+.text-action:hover {
+  color: #d8ecc1;
+}
+
+.text-action:focus-visible {
+  outline: 2px solid #d8ecc1;
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.reset-count {
+  color: #777f6f;
+}
+
+.count-label {
+  font-size: 9px;
+  letter-spacing: 2.8px;
+  color: #8b9281;
+}
+
+.count-panel output {
+  font-size: clamp(48px, 5.4vw, 70px);
+  line-height: 1.1;
+  letter-spacing: -2px;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  display: block;
+  color: #d8ecc1;
+}
+
+@media (max-width: 600px) {
+  .count-panel {
+    padding-inline: 15px;
+    gap: 10px;
+  }
+  .count-panel output {
+    font-size: 58px;
+  }
+}

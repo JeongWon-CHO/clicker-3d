@@ -1,0 +1,40 @@
+.feedback-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.click-feedback {
+  position: absolute;
+  color: #e0fac5;
+  font-size: 21px;
+  font-weight: 500;
+  animation: float-up 0.48s ease-out forwards;
+  text-shadow: 0 0 20px #c8f79b44;
+}
+
+@keyframes float-up {
+  from {
+    opacity: 1;
+    transform: translate(-50%, -25px) scale(0.9);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -85px) scale(1.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .click-feedback {
+    animation-name: fade-out;
+  }
+  @keyframes fade-out {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+}

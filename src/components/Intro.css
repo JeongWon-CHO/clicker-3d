@@ -1,0 +1,26 @@
+.intro {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  pointer-events: none;
+}
+
+.intro__title {
+  margin: 0;
+  font-size: clamp(22px, 2.2vw, 30px);
+  font-weight: 500;
+  letter-spacing: -1.2px;
+}
+
+.intro__description {
+  margin: 0;
+  font-size: 13px;
+  color: #858781;
+  letter-spacing: -0.2px;
+}
+
+@media (max-width: 600px) {
+  .intro__description {
+    font-size: 12px;
+  }
+}

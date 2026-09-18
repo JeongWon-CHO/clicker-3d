@@ -3,16 +3,33 @@ import cryingFaceUrl from "./assets/sad.png?url";
 import angryFaceUrl from "./assets/angry.png?url";
 
 export const faceVariants = [
-  { id: "default", label: "기본 종근이", textureUrl: defaultFaceUrl },
-  { id: "angry", label: "화난 종근이", textureUrl: angryFaceUrl },
-  { id: "crying", label: "울고 있는 종근이", textureUrl: cryingFaceUrl },
+  {
+    id: "default",
+    label: "기본 종근이",
+    shortLabel: "기본",
+    textureUrl: defaultFaceUrl,
+  },
+  {
+    id: "angry",
+    label: "화난 종근이",
+    shortLabel: "화남",
+    textureUrl: angryFaceUrl,
+  },
+  {
+    id: "crying",
+    label: "울고 있는 종근이",
+    shortLabel: "울음",
+    textureUrl: cryingFaceUrl,
+  },
 ] as const satisfies readonly {
   id: string;
   label: string;
+  shortLabel: string;
   textureUrl: string | null;
 }[];
 
 export type FaceVariant = (typeof faceVariants)[number]["id"];
+export type FaceMode = "auto" | "manual";
 export const autoFaceStages: readonly {
   minCount: number;
   face: FaceVariant;
