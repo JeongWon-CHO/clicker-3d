@@ -3,6 +3,7 @@ import { KeycapScene } from "./components/KeycapScene";
 import { ModeSelect } from "./components/ModeSelect";
 import { ClickFeedback, type Feedback } from "./components/ClickFeedback";
 import { usePersistentCount } from "./hooks/usePersistentCount";
+import { useKeyClickSound } from "./hooks/useKeyClickSound";
 import {
   faceVariants,
   getAutoFace,
@@ -12,6 +13,7 @@ import {
 
 export default function App() {
   const { count, increment, reset } = usePersistentCount();
+  const playClickSound = useKeyClickSound();
   const [ready, setReady] = useState(false);
   const [mode, setMode] = useState<"auto" | "manual">("auto");
   const [manualFace, setManualFace] = useState<FaceVariant>("default");
@@ -24,6 +26,7 @@ export default function App() {
   const onClick = useCallback(
     (x: number, y: number) => {
       increment();
+      playClickSound();
       const id = ++sequence.current;
       setFeedback((items) => [...items.slice(-11), { id, x, y }]);
       if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
@@ -36,7 +39,7 @@ export default function App() {
         );
       }
     },
-    [increment],
+    [increment, playClickSound],
   );
   const onDone = useCallback(
     (id: number) =>
